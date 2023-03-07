@@ -1,6 +1,7 @@
 import {getAccessToken} from './utilities.js';
 const rootURL = 'https://photo-app-secured.herokuapp.com';
 
+//Show functions
 const showStories = async (token) => {
     const endpoint = `${rootURL}/api/stories/?limit=5`;
     const response = await fetch(endpoint, {
@@ -96,123 +97,6 @@ const showSuggestions = async (token) => {
     const htmlOutput = data.map(suggestionsToHTML).join('');
     document.querySelector(".suggestions").innerHTML = htmlOutput;
 
-    
-
-
-
-
-
-
-}
-
-
-const initPage = async () => {
-    // first log in (we will build on this after Spring Break):
-    const token = await getAccessToken(rootURL, 'noah', 'noah_password');
-
-    // then use the access token provided to access data on the user's behalf
-    const profileData = await showProfile(token);
-    showSuggestions(token);
-    showStories(token);
-    showPosts(token);
-    
-    
-}
-
-const storiesToHTML = (data) =>{
-    return `
-    <a href=""><li class="story">
-    <img class="story-pfp" src="${data.user.thumb_url}"/>
-    <p class="user">${data.user.username}</p>
-    </li> </a>
-    `
-
-}
-
-const postToHTML = (data) => {
-    return `
-    <section class="card">
-                <ul class="post">
-                    <li class="post-head">
-                        <h4 class="post-user">
-                            ${data.user.username}
-                        </h4>
-                        <a href=""><i class="fa-solid fa-ellipsis"></i></a>
-                    </li>
-                    
-                    <li class="pic-post">
-                        <img class="post-img" src="${data.image_url}" />
-                    </li>
-                    <li class="icons-list">
-                        <div class="interact-list">
-                            ${checkHeart(data)}
-                            <a href=""><i class="fa-regular fa-comment"></i></a>
-                            <a href=""><i class="fa-regular fa-paper-plane"></i></a>
-                        </div>
-                        <div>
-                            ${checkBookmark(data)}
-                        </div>
-                        
-                    </li>
-                    <li class="likes">
-                        <b>${data.likes.length} Likes</b>
-
-                    </li>
-                    <li class="post-des">
-                        <div class="post-user"><a href=""><b>${data.user.username}</b></a></div>
-                        <div class="description">
-                        ${data.caption}
-                        </div>
-                        
-                    </li>
-                    <div class="post-date">
-                    ${data.display_time}
-                    </div>
-                    <li class="comments">
-                        
-                        ${checkComments(data)}
-
-
-                    </li>
-                    <li class="post-footer">
-                        <div class="add-comment">
-                            <a href=""><i class="fa-regular fa-face-smile"></i></a>
-                            <input placeholder="Add a comment..."/>
-                        </div>
-                        <a href="" >Post</a>
-                    </li>
-                </ul>
-                <div id="modal${data.id}" class="modal-bg hidden" aria-hidden="true" >
-                    
-                    
-                    
-                        
-                    
-                        <div class="modal-post">
-                        <button id="${data.id}" class="close-modal fa-solid fa-x"></button>
-                            <img class="modal-img" src="${data.image_url}"/>
-
-                            <div class="modal-text">
-                                <div class="modal-des">
-                                    <ul class="user-section">
-                                        <li class="logged-img">
-                                            <img class="user-pfp" src="${data.user.thumb_url}"/>
-                                        </li>
-                                        <li class="logged-user">
-                                            <b><h2>${data.user.username}</h2></b>
-                                        </li>
-                                    
-                                    </ul>
-                                </div>
-                                <div class="modal-comments">
-                                    ${showModalComments(data)}
-                                </div>
-                            </div>
-                        </div>
-                    
-                </div>
-        </section>
-    `
 
 }
 
@@ -236,7 +120,6 @@ const showModalComments = data =>{
 
     }
     return tempHTML;
-
 }
 
 const showModal = (id) =>{
@@ -254,60 +137,33 @@ const closeModal = (id) =>{
     modal.setAttribute("aria-hidden", 'true');
     modal.tabIndex = -1;
     modal.focus();
-
-
 }
 
-const checkHeart = data =>{
-
-    if(typeof data.current_user_like_id == 'undefined'){
-        return `<a href=""><i class="fa-regular fa-heart"></i></a>`;
-    }
-    else{
-        return `<a href=""><i style="color:red;" class="fa-solid fa-heart"></i></a>`;
-    }
-
-}
-const checkBookmark = data =>{
-    if(typeof data.current_user_bookmark_id == 'undefined'){
-        return `<a href=""><i class="fa-regular fa-bookmark"></i></a>`;
-    }
-    else{
-        return `<a href=""><i class="fa-solid fa-bookmark"></i></a>`;
-    }
-}
-const checkComments = data =>{
-    let tempHTML = ``;
-    if(data.comments.length == 1){
-        tempHTML += `
-        <div class="comment-block">
-        <div class="post-user"><a href=""><b>${data.comments[data.comments.length-1].user.username}</b></a></div>
-        <div class="description">${data.comments[data.comments.length-1].text}</div>
-        </div>
-        <div class="post-date">
-                    ${data.comments[data.comments.length-1].display_time}
-        </div>
-        `;
-    }
-    else if (data.comments.length > 1){
-        tempHTML += `
-        <button id="${data.id}" class ="show-all-comments">Show all ${data.comments.length} comments</button>
-        <div class="comment-block">
-        <div class="post-user"><a href=""><b>${data.comments[data.comments.length-1].user.username}</b></a></div>
-        <div class="description">${data.comments[data.comments.length-1].text} </div>
-        </div>
-        <div class="post-date">
-        ${data.comments[data.comments.length-1].display_time}
-        </div>
-        
-        `;
 
 
-    }
+const initPage = async () => {
+    // first log in (we will build on this after Spring Break):
+    const token = await getAccessToken(rootURL, 'noah', 'noah_password');
+
+    // then use the access token provided to access data on the user's behalf
+    const profileData = await showProfile(token);
+    showSuggestions(token);
+    showStories(token);
+    showPosts(token);
     
-    return tempHTML;
 }
 
+
+//To HTML Functions
+const storiesToHTML = (data) =>{
+    return `
+    <a href=""><li class="story">
+    <img class="story-pfp" src="${data.user.thumb_url}"/>
+    <p class="user">${data.user.username}</p>
+    </li> </a>
+    `
+
+}
 
 const navToHTML = (data) => {
     return `
@@ -362,10 +218,290 @@ const suggestionsToHTML = (data) => {
     `
 }
 
+const postToHTML = (data) => {
+    return `
+    <section class="card">
+                <ul class="post">
+                    <li class="post-head">
+                        <h4 class="post-user">
+                            ${data.user.username}
+                        </h4>
+                        <a href=""><i class="fa-solid fa-ellipsis"></i></a>
+                    </li>
+                    
+                    <li class="pic-post">
+                        <img class="post-img" src="${data.image_url}" />
+                    </li>
+                    <li class="icons-list">
+                        <div class="interact-list">
+                            ${checkHeart(data)}
+                            <a href=""><i class="fa-regular fa-comment"></i></a>
+                            <a href=""><i class="fa-regular fa-paper-plane"></i></a>
+                        </div>
+                        <div>
+                            ${checkBookmark(data)}
+                        </div>
+                        
+                    </li>
+                    <li class="likes">
+                        <b>${data.likes.length} Likes</b>
+
+                    </li>
+                    <li class="post-des">
+                        <div class="post-user"><a href=""><b>${data.user.username}</b></a></div>
+                        <div class="description">
+                        ${data.caption}
+                        </div>
+                        
+                    </li>
+                    <div class="post-date">
+                    ${data.display_time}
+                    </div>
+                    <li class="comments">
+                        
+                        ${checkComments(data)}
+
+
+                    </li>
+                    <li class="post-footer">
+                        <div class="add-comment">
+                            <input id="comment_${data.id}" placeholder="Add a comment..."/>
+                        </div>
+                        <button onclick="updateComment(id)" id="post_${data.id}" >Post</button>
+                    </li>
+                </ul>
+                <div id="modal${data.id}" class="modal-bg hidden" aria-hidden="true" >
+                        <div class="modal-post">
+                        <button id="${data.id}" class="close-modal fa-solid fa-x"></button>
+                            <img class="modal-img" src="${data.image_url}"/>
+
+                            <div class="modal-text">
+                                <div class="modal-des">
+                                    <ul class="user-section">
+                                        <li class="logged-img">
+                                            <img class="user-pfp" src="${data.user.thumb_url}"/>
+                                        </li>
+                                        <li class="logged-user">
+                                            <b><h2>${data.user.username}</h2></b>
+                                        </li>
+                                    
+                                    </ul>
+                                </div>
+                                <div class="modal-comments">
+                                    ${showModalComments(data)}
+                                </div>
+                            </div>
+                        </div>
+                    
+                </div>
+        </section>
+    `
+
+}
+
+
+// Check Functions
+const checkHeart = data =>{
+
+    if(typeof data.current_user_like_id == 'undefined'){
+        return `<button id="heart_${data.id}" onclick="postHeart(id)" class="fa-regular fa-heart"></button>`;
+    }
+    else{
+        return `<button id="heart_${data.id}_${data.current_user_like_id}" onclick="deleteHeart(id)" style="color:red;" class="fa-solid fa-heart"></button>`;
+    }
+
+}
+const checkBookmark = data =>{
+    if(typeof data.current_user_bookmark_id == 'undefined'){
+        return `<button id="bookmark_${data.id}" onclick="postBookmark(id)" class="fa-regular fa-bookmark"></button>`;
+    }
+    else{
+        return `<button id="bookmark_${data.id}_${data.current_user_bookmark_id}" onclick="deleteBookmark(id)" class="fa-solid fa-bookmark"></button>`;
+    }
+}
+const checkComments = data =>{
+    let tempHTML = ``;
+    if(data.comments.length == 1){
+        tempHTML += `
+        <div class="comment-block">
+        <div class="post-user"><a href=""><b>${data.comments[data.comments.length-1].user.username}</b></a></div>
+        <div class="description">${data.comments[data.comments.length-1].text}</div>
+        </div>
+        <div class="post-date">
+                    ${data.comments[data.comments.length-1].display_time}
+        </div>
+        `;
+    }
+    else if (data.comments.length > 1){
+        tempHTML += `
+        <button id="${data.id}" class ="show-all-comments">Show all ${data.comments.length} comments</button>
+        <div class="comment-block">
+        <div class="post-user"><a href=""><b>${data.comments[data.comments.length-1].user.username}</b></a></div>
+        <div class="description">${data.comments[data.comments.length-1].text} </div>
+        </div>
+        <div class="post-date">
+        ${data.comments[data.comments.length-1].display_time}
+        </div>
+        `;
+
+
+    }
+    return tempHTML;
+}
+
+// update helper functions
+
+window.updateComment = async (id) =>{
+    console.log("Updating Comment",id);
+}
+
+// delete functions
+
+window.postHeart = async (id) =>{
+    console.log("Liking");
+
+    const postID = id.split("_");
+
+    const endpoint = `${rootURL}/api/posts/likes/`;
+    const postData = {
+        "post_id": postID[1]// replace with the actual post ID
+    };
+
+    const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + await getAccessToken(rootURL, 'noah', 'noah_password')
+        },
+        body: JSON.stringify(postData)
+    })
+    const data = await response.json();
+
+
+    redrawHeart(postID[1]);
+}
+
+window.postBookmark = async (id) =>{
+        console.log("Bookmarking");
+
+        const postID = id.split("_");
+
+        const endpoint = `${rootURL}/api/bookmarks/`;
+        const postData = {
+        "post_id": postID[1] // replace with the actual post ID
+        };
+
+    // Create the bookmark:
+    const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + await getAccessToken(rootURL, 'noah', 'noah_password')
+        },
+        body: JSON.stringify(postData)
+    })
+    const data = await response.json();
+
+    redrawBookmark(postID[1])
+        
+
+}
+
+// post functions
+
+window.deleteHeart = async (id) =>{
+    console.log("Deleting Like");
+
+
+    const postID = id.split("_");
+
+    const endpoint = `${rootURL}/api/posts/likes/${postID[2]}`;
+
+    const response = await fetch(endpoint, {
+        method: "DELETE",
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + await getAccessToken(rootURL, 'noah', 'noah_password')
+        }
+    })
+
+    const data = await response.json();
+
+    console.log(postID);
+
+    redrawHeart(postID[1]);
+}
+
+window.deleteBookmark = async (id) =>{
+    console.log("Deleting Bookmark");
+
+    const postID = id.split("_");
+
+    const endpoint = `${rootURL}/api/bookmarks/${postID[2]}`;
+
+    // Create the bookmark:
+    const response = await fetch(endpoint, {
+        method: "DELETE",
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + await getAccessToken(rootURL, 'noah', 'noah_password')
+        }
+    })
+
+    const data = await response.json();
+    redrawBookmark(postID[1])
+    
+}
+
+// redraw functions
+
+const redrawHeart = async (id) =>{
+    console.log("redrawing Heart");
+    const endpoint = `${rootURL}/api/posts/${id}`;
+    const response = await fetch(endpoint, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + await getAccessToken(rootURL, 'noah', 'noah_password')
+        }
+    })
+    const data = await response.json();
+    const htmlString = checkHeart(data);
+
+    console.log(id);
+    
+    targetElementAndReplace(`heart_${id}`, htmlString);
+
+}
+
+const redrawBookmark = async (id) =>{
+    console.log("Redrawing Bookmark");
+
+    const endpoint = `${rootURL}/api/posts/${id}`;
+    const response = await fetch(endpoint, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + await getAccessToken(rootURL, 'noah', 'noah_password')
+        }
+    })
+    const data = await response.json();
+    const htmlString = checkBookmark(data);
+    
+    targetElementAndReplace(`bookmark_${id}`, htmlString);
+
+
+}
+
+const targetElementAndReplace = (selector, newHTML) => { 
+	const div = document.createElement('div'); 
+	div.innerHTML = newHTML;
+	const newEl = div.firstElementChild; 
+    const oldEl = document.getElementById(selector);
+    oldEl.parentElement.replaceChild(newEl, oldEl);
+}
+
+
+
+
 
 
 initPage();
-
-
-// const htmlOutput = jsonData.map(artistToHTML).join('');
-// document.querySelector(".results").innerHTML = htmlOutput;
