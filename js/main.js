@@ -368,7 +368,6 @@ const checkComments = data =>{
 const checkFollow = (data) =>{
     return `
     <button id="follow_${data.id}" onclick="postFollow(id)">Follow</button>
-    
     `
 }
 
@@ -445,7 +444,14 @@ window.postFollow = async (id) =>{
     const data = await response.json();
     console.log("Redraw Data Follow: ",data);
     redrawFollow(id);
+}
 
+window.deleteFollow = async id =>{
+    const data = showFollowing();
+
+    const userID = id.split("_");
+
+    console.log(data);
 
 }
 
@@ -563,7 +569,7 @@ const redrawFollow = async (id) =>{
     console.log("redrawing");
 
     document.getElementById(id).innerHTML = `
-        <button >Unfollow</button>
+        <button id="${id}" onclick="deleteFollow(id)">unfollow</button>
     `;
 
 
