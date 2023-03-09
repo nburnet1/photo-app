@@ -94,10 +94,27 @@ const showSuggestions = async (token) => {
 
     console.log('Suggestions:', data);
 
-    const htmlOutput = data.map(suggestionsToHTML).join('');
+    let htmlOutput = ``;
+
+    for(let i = 0; i < data.length; i++){
+        htmlOutput += suggestionsToHTML(data[i]);
+    }
     document.querySelector(".suggestions").innerHTML = htmlOutput;
+}
 
+const showFollowing = async (token) => {
+    const endpoint = `${rootURL}/api/following`;
+    const response = await fetch(endpoint, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        }
+    })
+    const data = await response.json();
 
+    console.log('Following:', data);
+
+    return data;
 }
 
 const showModalComments = data =>{
@@ -105,7 +122,6 @@ const showModalComments = data =>{
 
     for(let i = 0; i < data.comments.length; i++){
         tempHTML += `
-            
         <div class="modal-comment-block">
         <img class="modal-user-pfp" src="${data.comments[i].user.thumb_url}"/>
         <div class="modal-post-user"><a href=""><b>${data.comments[i].user.username}</b></a></div>
@@ -147,6 +163,7 @@ const initPage = async () => {
 
     // then use the access token provided to access data on the user's behalf
     const profileData = await showProfile(token);
+    showFollowing(token);
     showSuggestions(token);
     showStories(token);
     showPosts(token);
@@ -167,9 +184,7 @@ const storiesToHTML = (data) =>{
 
 const navToHTML = (data) => {
     return `
-    
     <h1>Photo App</h1>
-    
     <ul>
         <li>${data.username}</li>
         <li><a href="">Sign Out</a></li>
@@ -212,7 +227,7 @@ const suggestionsToHTML = (data) => {
                             <p>Suggested For You</p>
                         </li>
                         <li class="follow">
-                            <a href="">Follow</a>
+                            ${checkFollow(data)}
                         </li>
     </ul>
     `
@@ -235,17 +250,18 @@ const postToHTML = (data) => {
                     <li class="icons-list">
                         <div class="interact-list">
                             ${checkHeart(data)}
-                            <a href=""><i class="fa-regular fa-comment"></i></a>
-                            <a href=""><i class="fa-regular fa-paper-plane"></i></a>
+                            <button class="fa-regular fa-comment"></button>
+                            <button class="fa-regular fa-paper-plane"></button>
                         </div>
                         <div>
                             ${checkBookmark(data)}
                         </div>
                         
                     </li>
-                    <li class="likes">
+                    <li class="likes" >
+                        <div id="likes_${data.id}">
                         <b>${data.likes.length} Likes</b>
-
+                        </div>
                     </li>
                     <li class="post-des">
                         <div class="post-user"><a href=""><b>${data.user.username}</b></a></div>
@@ -349,10 +365,11 @@ const checkComments = data =>{
     return tempHTML;
 }
 
-// update helper functions
-
-window.updateComment = async (id) =>{
-    console.log("Updating Comment",id);
+const checkFollow = (data) =>{
+    return `
+    <button id="follow_${data.id}" onclick="postFollow(id)">Follow</button>
+    
+    `
 }
 
 // delete functions
@@ -403,7 +420,32 @@ window.postBookmark = async (id) =>{
     const data = await response.json();
 
     redrawBookmark(postID[1])
-        
+}
+
+window.postFollow = async (id) =>{
+    console.log("Following");
+
+    const followID = id.split("_");
+
+    console.log("Following ID: ",followID[1]);
+
+    const endpoint = `${rootURL}/api/following/`;
+    const postData = {
+        "user_id": followID[1] // replace with the actual post ID
+    };
+
+    const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + await getAccessToken(rootURL, 'noah', 'noah_password')
+        },
+        body: JSON.stringify(postData)
+    })
+    const data = await response.json();
+    console.log("Redraw Data Follow: ",data);
+    redrawFollow(id);
+
 
 }
 
@@ -427,9 +469,9 @@ window.deleteHeart = async (id) =>{
 
     const data = await response.json();
 
-    console.log(postID);
+    // console.log(id);
 
-    redrawHeart(postID[1]);
+    redrawHeart(postID[1],postID[2],0);
 }
 
 window.deleteBookmark = async (id) =>{
@@ -449,13 +491,13 @@ window.deleteBookmark = async (id) =>{
     })
 
     const data = await response.json();
-    redrawBookmark(postID[1])
+    redrawBookmark(postID[1],postID[2],1)
     
 }
 
 // redraw functions
 
-const redrawHeart = async (id) =>{
+const redrawHeart = async (id,heartID,del) =>{
     console.log("redrawing Heart");
     const endpoint = `${rootURL}/api/posts/${id}`;
     const response = await fetch(endpoint, {
@@ -467,13 +509,35 @@ const redrawHeart = async (id) =>{
     const data = await response.json();
     const htmlString = checkHeart(data);
 
-    console.log(id);
+    // console.log(id,heartID,del);
     
-    targetElementAndReplace(`heart_${id}`, htmlString);
+    if(typeof del != 'undefined'){
+        targetElementAndReplace(`heart_${id}_${heartID}`, htmlString);
+    }
+    else{
+        targetElementAndReplace(`heart_${id}`, htmlString);
+    }
+
+
+    console.log("Likes: ",data.likes.length)
+
+    const likesHTML = `
+    <div id="likes_${id}">
+    <b>${data.likes.length} Likes</b>
+    </div>
+    `;
+
+    console.log("likesHTML: ",likesHTML);
+
+    targetElementAndReplace(`likes_${id}`,likesHTML);
+    
+
+
+    
 
 }
 
-const redrawBookmark = async (id) =>{
+const redrawBookmark = async (id,bookmarkID,del) =>{
     console.log("Redrawing Bookmark");
 
     const endpoint = `${rootURL}/api/posts/${id}`;
@@ -485,17 +549,35 @@ const redrawBookmark = async (id) =>{
     })
     const data = await response.json();
     const htmlString = checkBookmark(data);
-    
-    targetElementAndReplace(`bookmark_${id}`, htmlString);
+
+
+    if(del){
+        targetElementAndReplace(`bookmark_${id}_${bookmarkID}`, htmlString);
+    }
+    else{
+        targetElementAndReplace(`bookmark_${id}`, htmlString);
+    }
+}
+
+const redrawFollow = async (id) =>{
+    console.log("redrawing");
+
+    document.getElementById(id).innerHTML = `
+        <button >Unfollow</button>
+    `;
 
 
 }
 
 const targetElementAndReplace = (selector, newHTML) => { 
+    console.log("Selector: ",selector);
 	const div = document.createElement('div'); 
 	div.innerHTML = newHTML;
-	const newEl = div.firstElementChild; 
+    console.log("newHTML", newHTML);
+    const newEl = div.firstElementChild;
+    console.log("New Element: ", newEl);
     const oldEl = document.getElementById(selector);
+    console.log("Old Element: ",oldEl);
     oldEl.parentElement.replaceChild(newEl, oldEl);
 }
 
