@@ -696,7 +696,7 @@ const redrawFollow =(id,data) =>{
     console.log("redrawing",id,data);
 
     document.getElementById("class_"+id).innerHTML = `
-        <button aria-label="Follow" aria-checked="true" id="${id+"_"+data.id}" onclick="deleteFollow(id)">unfollow</button>
+        <button class="unfollow" aria-label="Follow" aria-checked="true" id="${id+"_"+data.id}" onclick="deleteFollow(id)">unfollow</button>
     `;
 }
 
