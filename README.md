@@ -8,6 +8,10 @@
   <li>npm install</li>
   <li>npm start</li>
 </ul>
+
+<h3>API</h3>
+See
+<a href="https://github.com/nburnet1/photo-app-api" >Photo-App-API</a> for more details
 </html>
 
 
