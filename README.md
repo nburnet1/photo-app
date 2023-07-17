@@ -11,7 +11,7 @@
 
 <h3>API</h3>
 See
-<a href="https://github.com/nburnet1/photo-app-api" >Photo-App-API</a> for more details
+<a href="https://github.com/nburnet1/photo-app-api" >photo-app-api</a> for more details
 </html>
 
 
